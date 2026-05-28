@@ -70,9 +70,16 @@ class ParentNode(HTMLNode):
             raise ValueError("A parent node can't be a parent node with no child")
         else:
             props = ""
+            child = ""
             if self.props != None:
                 for key in self.props:
                     props += f' {key}="{self.props[key]}"'
             for leafNode in self.children:
-                child = leafNode.to_html()
-                return f"<{self.tag}{props}>{child}</{self.tag}>"
+                if self.tag == "code":
+                    child += leafNode
+                else:
+                    child += leafNode.to_html()
+            
+            if self.tag == "code":
+                return f"<pre><{self.tag}{props}>{child}</{self.tag}></pre>"
+            return f"<{self.tag}{props}>{child}</{self.tag}>"

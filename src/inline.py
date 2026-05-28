@@ -12,7 +12,7 @@ class Inline():
                 if len(text) == 0:
                     continue
                 if i % 2 == 0:
-                    new_nodes.append(TextNode(text, TextType.TEXT))
+                    new_nodes.append(TextNode(text, node.text_type))
                 else:
                     new_nodes.append(TextNode(text, text_type))
 
@@ -45,7 +45,10 @@ class Inline():
                 if match:
                     new_nodes.append(TextNode(match.group(1), TextType.IMAGE, match.group(2)))
                 else:
-                    new_nodes.append(TextNode(segment, TextType.TEXT))
+                    if node.url:
+                        new_nodes.append(TextNode(segment, node.text_type, node.url))
+                    else:
+                        new_nodes.append(TextNode(segment, node.text_type))
 
         return new_nodes
 
@@ -60,6 +63,20 @@ class Inline():
                 if match:
                     new_nodes.append(TextNode(match.group(1), TextType.LINK, match.group(2)))
                 else:
-                    new_nodes.append(TextNode(segment, TextType.TEXT))
+                    if node.url:
+                        new_nodes.append(TextNode(segment, node.text_type, node.url))
+                    else:
+                        new_nodes.append(TextNode(segment, node.text_type))
 
         return new_nodes
+
+    def text_to_textnodes(text):
+        textNode = TextNode(text, TextType.TEXT)
+        split_nodes_italic = Inline.split_nodes_delimiter([textNode], "_", TextType.ITALIC)
+        split_nodes_bold = Inline.split_nodes_delimiter(split_nodes_italic, "**", TextType.BOLD)
+        split_nodes_code = Inline.split_nodes_delimiter(split_nodes_bold, "`", TextType.CODE)
+        split_node_image = Inline.split_nodes_image(split_nodes_code)
+        split_node_link = Inline.split_nodes_link(split_node_image)
+        return split_node_link
+
+
